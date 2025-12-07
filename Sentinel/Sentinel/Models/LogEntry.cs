@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Sentinel.Models
 {
-    public sealed class LogEntry : ILogEntry
+    internal sealed class LogEntry : ILogEntry
     {
         public string Text => throw new NotImplementedException();
 

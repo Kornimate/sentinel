@@ -6,11 +6,7 @@ using System.Threading.Tasks;
 
 namespace Sentinel.Models.Interfaces
 {
-    public interface ILogEntry
+    public interface ILogWriterOptions
     {
-        string Text { get; }
-        DateTime TimeStamp { get; }
-        LogLevel LogLevel { get; }
-        string Serialize();
     }
 }

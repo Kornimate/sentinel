@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <Folder Include="ExtensionMethods\" />
-    <Folder Include="Services\Interfaces\" />
   </ItemGroup>
 
 </Project>
