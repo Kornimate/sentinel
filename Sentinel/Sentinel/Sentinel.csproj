@@ -7,4 +7,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="ExtensionMethods\" />
+    <Folder Include="Services\Interfaces\" />
+  </ItemGroup>
+
 </Project>
