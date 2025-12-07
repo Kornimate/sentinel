@@ -1,5 +1,5 @@
-<p align="center">#sentinel</p>
-Logging library: it's watching and reporting on events.
+# <p align="center">Sentinel </p>
+*<p align="center">Logging library: it's watching and reporting on events.<p>*
 <p align="center">
-  <img src="images/sentinel_logo.png" width="400" style="border-radius: 12px;">
+  <img src="images/sentinel_logo.png" width="300">
 </p>
