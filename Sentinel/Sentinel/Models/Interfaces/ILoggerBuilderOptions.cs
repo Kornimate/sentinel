@@ -12,7 +12,7 @@ namespace Sentinel.Models.Interfaces
         ILoggerBuilderOptions AddJsonLogger(Action<ILogWriterOptions> writerOptions);
         ILoggerBuilderOptions AddXmlLogger(Action<ILogWriterOptions> writerOptions);
         ILoggerBuilderOptions AddConsoleLogger(Action<ILogWriterOptions> writerOptions);
-        ILoggerBuilderOptions AddCustomLogger(Action<ILogWriterOptions> writerOptions);
+        ILoggerBuilderOptions AddCustomLogger<T>(Action<ILogWriterOptions> writerOptions) where T : ILogWriter;
         IEnumerable<ILogWriter> GetRegisteredLogWrites();
     }
 }

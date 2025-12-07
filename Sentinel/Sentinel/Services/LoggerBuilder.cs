@@ -12,7 +12,7 @@ namespace Sentinel.Services
     public sealed class LoggerBuilder : ILoggerBuilder
     {
         private static readonly ILoggerContext _context = LoggerContext.GetInstance();
-        private static readonly ILoggerBuilderOptions _options = new LoggerBuilderOptions();
+        private static readonly ILoggerBuilderOptions _loggerBuilderOptions = new LoggerBuilderOptions();
 
         private readonly ILogger _logger;
 
@@ -25,9 +25,9 @@ namespace Sentinel.Services
 
         public static ILoggerBuilder CreateLogger(Action<ILoggerBuilderOptions> loggerOptions)
         {
-            loggerOptions(_options);
+            loggerOptions(_loggerBuilderOptions);
 
-            foreach (ILogWriter logWriter in _options.GetRegisteredLogWrites())
+            foreach (ILogWriter logWriter in _loggerBuilderOptions.GetRegisteredLogWrites())
             {
                 _context.AddLogWriter(logWriter);
             }
