@@ -1,4 +1,7 @@
-﻿namespace Sentinel
+﻿using Sentinel.Services;
+using Sentinel.Services.Interfaces;
+
+namespace Sentinel
 {
     internal class Program
     {

@@ -10,11 +10,12 @@ namespace Sentinel.Services
 {
     public sealed class LoggerContext : ILoggerContext
     {
-        private static ILoggerContext _instance;
+        private static ILoggerContext? _instance;
 
         private event EventHandler<ILogEntry>? logCreatedEvent;
 
         private LoggerContext() { } // to ensure singleton
+
         internal static ILoggerContext GetInstance()
         {
             return _instance ??= new LoggerContext();

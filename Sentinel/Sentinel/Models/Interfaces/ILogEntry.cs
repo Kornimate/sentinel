@@ -9,8 +9,10 @@ namespace Sentinel.Models.Interfaces
     public interface ILogEntry
     {
         string Text { get; }
+        string FilterData { get; }
         DateTime TimeStamp { get; }
-        LogLevel LogLevel { get; }
+        Exception? Exception { get; }
+        LogLevel Level { get; }
         string Serialize();
     }
 }

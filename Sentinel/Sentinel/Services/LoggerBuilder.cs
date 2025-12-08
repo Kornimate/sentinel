@@ -14,14 +14,14 @@ namespace Sentinel.Services
         private static readonly ILoggerContext _context = LoggerContext.GetInstance();
         private static readonly ILoggerBuilderOptions _loggerBuilderOptions = new LoggerBuilderOptions();
 
-        private readonly ILogger _logger;
+        private readonly ISentinelLogger _logger;
 
         private LoggerBuilder()
         {
-            _logger = new Logger();
+            _logger = new SentinelLogger();
         }
 
-        public ILogger Logger { get => _logger; }
+        public ISentinelLogger Logger { get => _logger; }
 
         public static ILoggerBuilder CreateLogger(Action<ILoggerBuilderOptions> loggerOptions)
         {

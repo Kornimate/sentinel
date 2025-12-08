@@ -8,11 +8,8 @@ using System.Threading.Tasks;
 
 namespace Sentinel.Services
 {
-    public sealed class JsonLogWriter : ILogWriter
+    internal sealed class JsonLogWriter : LogWriterBase
     {
-        public void AddLogMessage(object? sender, ILogEntry e)
-        {
-            throw new NotImplementedException();
-        }
+        public JsonLogWriter() : base("Json") { }
     }
 }

@@ -2,18 +2,31 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Sentinel.Models
 {
-    internal sealed class LogEntry : ILogEntry
+    public sealed record LogEntry : ILogEntry
     {
-        public string Text => throw new NotImplementedException();
+        public LogEntry(string message,[CallerMemberName] string caller = "", LogLevel logLevel = LogLevel.VERBOSE, Exception? exception = null)
+        {
+            Text = message;
+            Level = logLevel;
+            Exception = exception; 
+            FilterData = caller;
+            TimeStamp = DateTime.UtcNow;
+        }
+        public string Text { get; private set; }
 
-        public DateTime TimeStamp => throw new NotImplementedException();
+        public string FilterData { get; private set; }
 
-        public LogLevel LogLevel => throw new NotImplementedException();
+        public DateTime TimeStamp { get; private set; }
+
+        public Exception? Exception { get; private set; }
+
+        public LogLevel Level { get; private set; }
 
         public string Serialize() => String.Empty;
     }

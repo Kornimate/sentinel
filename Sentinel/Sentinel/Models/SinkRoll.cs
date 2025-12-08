@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sentinel.Services.Interfaces
+namespace Sentinel.Models
 {
-    public interface ILogger
+    public enum SinkRoll
     {
+        HOURLY = 1, // should represent the hours
+        DAILY = 24
     }
 }
