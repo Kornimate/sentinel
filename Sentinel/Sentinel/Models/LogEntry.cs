@@ -10,7 +10,7 @@ namespace Sentinel.Models
 {
     public sealed record LogEntry : ILogEntry
     {
-        public LogEntry(string message,[CallerMemberName] string caller = "", LogLevel logLevel = LogLevel.VERBOSE, Exception? exception = null)
+        public LogEntry(string message, string caller = "", LogLevel logLevel = LogLevel.VERBOSE, Exception? exception = null)
         {
             Text = message;
             Level = logLevel;
