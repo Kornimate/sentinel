@@ -1,4 +1,5 @@
-﻿using Sentinel.Services.LoggerBuilders;
+﻿using Sentinel.Models;
+using Sentinel.Services.LoggerBuilders;
 
 namespace Sentinel
 {
@@ -11,12 +12,20 @@ namespace Sentinel
             var builder = LoggerBuilder.CreateLogger(options =>
             {
                 options
-                    .AddConsoleLogger()
-                    .AddJsonLogger()
-                    .AddJsonLogger()
-                    .AddXmlLogger()
-                    .AddXmlLogger()
-                    .AddCustomLogger<TxtLogWriter>();
+                    //.AddConsoleLogger()
+                    //.AddJsonLogger()
+                    .AddJsonLogger(options =>
+                    {
+                        options
+                        .WithLogFilePath("D:\\Logs")
+                        .WithLoggedClassFilter("Program")
+                        .WithLogFileName("Test")
+                        .WithMinimumLogLevel(LogLevel.WARNG)
+                        .WithSinkRollTiming(SinkRoll.DAILY);
+                    });
+                    //.AddXmlLogger()
+                    //.AddXmlLogger()
+                    //.AddCustomLogger<TxtLogWriter>();
             });
 
             var logger = builder.GetLogger<Program>();

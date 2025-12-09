@@ -75,7 +75,7 @@ namespace Sentinel.Services.LogWriters
 
         protected virtual void OpenNewOrExistingFile()
         {
-            var timestamp = DateTime.UtcNow.ToString("yyyyMMdd_HH");
+            var timestamp = DateTime.UtcNow.ToString(_sinkTiming == SinkRoll.HOURLY ? "yyyyMMdd_HH" : "yyyMMdd");
             var path = Path.Combine(
                 _filePath!,
                 $"{timestamp}{(_fileName is not null ? "_id_" + _fileName : "")}" +
