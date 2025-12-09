@@ -1,46 +1,30 @@
-\#
-```{=html}
 <p align="center">
-```
 Sentinel
-```{=html}
 </p>
-```
-\*
-```{=html}
 <p align="center">
-```
 Logging library: it's watching and reporting on events.
-```{=html}
 </p>
-```
--   
-
-```{=html}
 <p align="center">
-```
-`<img src="Images/sentinel_logo.png" width="300">`{=html}
-```{=html}
+<img src="Images/sentinel_logo.png" width="300">`{=html}
 </p>
-```
 
-------------------------------------------------------------------------
+---
 
-# Sentinel Log Writers -- Complete Usage Guide
+# Sentinel Logger -- Complete Usage Guide
 
 This document describes the architecture, configuration, and correct
 usage of all logging writers in the Sentinel logging system. It covers:
 
--   `LogWriterBase`
--   `FileLogWriterBase`
--   `ConsoleLogWriterBase`
--   How to create custom derived writers
--   Filtering, batching, rotation, and shutdown behavior
+- `LogWriterBase`
+- `FileLogWriterBase`
+- `ConsoleLogWriterBase`
+- How to create custom derived writers
+- Filtering, batching, rotation, and shutdown behavior
 
 This README is intended for engineers implementing or extending the
 logging system.
 
-------------------------------------------------------------------------
+---
 
 ## 1. Architecture Overview
 
@@ -56,31 +40,35 @@ The logging system is structured using three layers of abstraction:
 
 ### Responsibilities
 
-  --------------------------------------------------------------------------
-  Layer                    Responsibility
-  ------------------------ -------------------------------------------------
-  `LogWriterBase`          Async channel, filtering, background task
-                           lifecycle
+---
 
-  `FileLogWriterBase`      File handling, batching, flushing, rotation
+Layer Responsibility
 
-  `ConsoleLogWriterBase`   Console output only
-  --------------------------------------------------------------------------
+---
+
+`LogWriterBase` Async channel, filtering, background task
+lifecycle
+
+`FileLogWriterBase` File handling, batching, flushing, rotation
+
+`ConsoleLogWriterBase` Console output only
+
+---
 
 > You never instantiate base classes directly. You always create derived
 > implementations.
 
-------------------------------------------------------------------------
+---
 
 ## 2. LogWriterBase -- Core Behavior
 
 `LogWriterBase` provides:
 
--   Async log buffering using `Channel<T>`
--   Background consumer task
--   Log filtering and minimum level rules
--   Graceful shutdown handling
--   Backpressure handling when the channel is full
+- Async log buffering using `Channel<T>`
+- Background consumer task
+- Log filtering and minimum level rules
+- Graceful shutdown handling
+- Backpressure handling when the channel is full
 
 ### Internal Pipeline
 
@@ -94,15 +82,13 @@ The logging system is structured using three layers of abstraction:
        ↓
     WriteLogAsync()
 
-------------------------------------------------------------------------
+---
 
 ## 3. Writer Lifecycle
 
-Every writer follows the same lifecycle:
+### 3.1 Construction with Builder
 
-### 3.1 Construction
-
-``` csharp
+```csharp
 var builder = LoggerBuilder.CreateLogger(options =>
 {
     options
@@ -124,9 +110,10 @@ var builder = LoggerBuilder.CreateLogger(options =>
 
 var logger = builder.GetLogger<Program>();
 ```
-#### 3.1.1 Usage
 
-``` csharp
+#### 3.1.1 Usage of class
+
+```csharp
 logger.Log(Models.LogLevel.VERBS, "Hello 1");
 logger.LogDebug("Hello 2");
 logger.LogInformation("Hello 3");
@@ -135,18 +122,18 @@ logger.LogError("Hello 5");
 logger.LogFatal("Hello 6");
 ```
 
-### 3.2 Configuration
+### 3.2 Configuration of Writers
 
 Before calling `Build()`:
 
-``` csharp
+```csharp
 writer.SetMinimiumLogLevel(LogLevel.INFO);
 writer.SetFilter("MyService");
 ```
 
 For file writers:
 
-``` csharp
+```csharp
 writer.SetFilePath("C:\Logs");
 writer.SetSubDirectory("App");
 writer.SetFileName("runtime");
@@ -155,28 +142,28 @@ writer.SetSinkTiming(SinkRoll.DAILY);
 
 ### 3.3 Build
 
-``` csharp
+```csharp
 writer.Build();
 ```
 
 ### 3.4 Logging
 
-``` csharp
+```csharp
 writer.AddLogMessage(this, logEntry);
 ```
 
 ### 3.5 Shutdown
 
-``` csharp
+```csharp
 await writer.DisposeAsync();
 ```
 
-------------------------------------------------------------------------
+---
 
 ## 13. What This System Guarantees
 
--   High-throughput async logging
--   No log loss under normal operation
--   Safe shutdown with full drain
--   Fully extensible formatting and rotation logic
--   Production-grade file safety
+- High-throughput async logging
+- No log loss under normal operation
+- Safe shutdown with full drain
+- Fully extensible formatting and rotation logic
+- Production-grade file safety
