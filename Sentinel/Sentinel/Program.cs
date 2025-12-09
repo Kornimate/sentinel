@@ -1,5 +1,4 @@
-﻿using Sentinel.Services;
-using Sentinel.Services.Interfaces;
+﻿using Sentinel.Services.LoggerBuilders;
 
 namespace Sentinel
 {

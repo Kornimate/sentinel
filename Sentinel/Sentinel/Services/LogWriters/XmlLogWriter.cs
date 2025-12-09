@@ -1,5 +1,5 @@
-﻿using Sentinel.Models;
-using Sentinel.Models.Interfaces;
+﻿using Sentinel.Models.LogTypes;
+using Sentinel.Models.LogTypes.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace Sentinel.Services
+namespace Sentinel.Services.LogWriters
 {
     internal sealed class XmlLogWriter : FileLogWriterBase
     {
@@ -94,7 +94,7 @@ namespace Sentinel.Services
             _namespaces.Add("", "");
         }
 
-        protected override async Task WriteLogAsync(ILogEntry entry)
+        protected override Task WriteLogAsync(ILogEntry entry)
         {
             _xmlWriter ??= XmlWriter.Create(_stream, _settings);
 
@@ -109,6 +109,8 @@ namespace Sentinel.Services
             _serializer.Serialize(_writer, entry, _namespaces);
             _xmlWriter.WriteWhitespace("\n");
             _writer.Flush();
+
+            return Task.CompletedTask;
         }
 
         public override ValueTask DisposeAsync()

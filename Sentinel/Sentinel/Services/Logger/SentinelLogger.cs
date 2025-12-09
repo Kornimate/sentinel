@@ -1,12 +1,15 @@
 ﻿using Sentinel.Models;
-using Sentinel.Services.Interfaces;
+using Sentinel.Models.LogTypes;
+using Sentinel.Services.Logger.Interfaces;
+using Sentinel.Services.LoggingContext;
+using Sentinel.Services.LoggingContext.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sentinel.Services
+namespace Sentinel.Services.Logger
 {
     public sealed class SentinelLogger<T> : ISentinelLogger<T> where T : class
     {

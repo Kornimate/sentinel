@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sentinel.Services
+namespace Sentinel.Services.LogWriters
 {
     internal sealed class ConsoleLogWriter : ConsoleLogWriterBase { }
 }

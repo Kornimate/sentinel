@@ -1,12 +1,12 @@
 ﻿using Sentinel.Models;
-using Sentinel.Models.Interfaces;
+using Sentinel.Models.LogTypes.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sentinel.Services.Interfaces
+namespace Sentinel.Services.LogWriters.Interfaces
 {
     public interface ILogWriter
     {

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sentinel.Services.Interfaces
+namespace Sentinel.Services.Logger.Interfaces
 {
     public interface ISentinelLogger<T> where T : class
     {

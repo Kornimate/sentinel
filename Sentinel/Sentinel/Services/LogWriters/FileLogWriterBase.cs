@@ -1,6 +1,6 @@
 ﻿using Sentinel.Models;
-using Sentinel.Models.Interfaces;
-using Sentinel.Services.Interfaces;
+using Sentinel.Models.LogTypes.Interfaces;
+using Sentinel.Services.LogWriters.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,10 +8,12 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sentinel.Services
+namespace Sentinel.Services.LogWriters
 {
     public abstract class FileLogWriterBase : LogWriterBase
     {
+        private static int _loggerIndexer = 0;
+
         // ----- Configs ------
         protected string? _filePath = null;
         protected string? _fileName = null;
@@ -50,6 +52,11 @@ namespace Sentinel.Services
             else
             {
                 _filePath = Path.Combine(_filePath, SubDirectory);
+            }
+
+            if(_fileName is null)
+            {
+                _fileName = (++_loggerIndexer).ToString();
             }
 
             OpenNewOrExistingFile(); // open file before background task starts to write it (starts in base.Build())
@@ -189,7 +196,7 @@ namespace Sentinel.Services
 
         public sealed override void SetFilePath(string filePath)
         {
-            if (String.IsNullOrWhiteSpace(filePath))
+            if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentException("Invalid file path!", nameof(filePath));
 
             if (!Path.Exists(filePath))
@@ -200,7 +207,7 @@ namespace Sentinel.Services
 
         public sealed override void SetFileName(string fileName)
         {
-            if (String.IsNullOrWhiteSpace(fileName))
+            if (string.IsNullOrWhiteSpace(fileName))
                 throw new ArgumentException("Invalid file name!", nameof(fileName));
 
             _fileName = fileName;
@@ -208,7 +215,7 @@ namespace Sentinel.Services
 
         public sealed override void SetFilter(string filter)
         {
-            if (String.IsNullOrWhiteSpace(filter))
+            if (string.IsNullOrWhiteSpace(filter))
                 throw new ArgumentException("Invalid filter!", nameof(filter));
 
             throw new NotImplementedException();
@@ -225,7 +232,7 @@ namespace Sentinel.Services
         }
         public sealed override void SetSubDirectory(string dirName)
         {
-            if (String.IsNullOrWhiteSpace(dirName))
+            if (string.IsNullOrWhiteSpace(dirName))
                 throw new ArgumentException("Invalid file path!", nameof(dirName));
 
             SubDirectory = dirName;

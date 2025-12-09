@@ -1,13 +1,13 @@
-﻿using Sentinel.Models.Interfaces;
-using Sentinel.Models;
-using Sentinel.Services.Interfaces;
+﻿using Sentinel.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Sentinel.Services.LogWriters.Interfaces;
+using Sentinel.Models.LogTypes.Interfaces;
 
-namespace Sentinel.Services
+namespace Sentinel.Services.LogWriters
 {
     public abstract class ConsoleLogWriterBase : LogWriterBase
     {

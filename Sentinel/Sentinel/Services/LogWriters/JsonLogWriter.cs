@@ -1,5 +1,4 @@
-﻿using Sentinel.Models.Interfaces;
-using Sentinel.Services.Interfaces;
+﻿using Sentinel.Models.LogTypes.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Sentinel.Services
+namespace Sentinel.Services.LogWriters
 {
     internal sealed class JsonLogWriter : FileLogWriterBase
     {

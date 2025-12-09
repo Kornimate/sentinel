@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Sentinel.Services.HelathChecks.Interfaces;
+using Sentinel.Services.LogWriters.Interfaces;
 
-namespace Sentinel.Services.Interfaces
+namespace Sentinel.Services.HelathChecks
 {
     internal class HealthCheckService : IHealthCheckService
     {

@@ -1,18 +1,19 @@
-﻿using Sentinel.Models.Interfaces;
-using Sentinel.Services.Interfaces;
+﻿using Sentinel.Models.LogTypes.Interfaces;
+using Sentinel.Services.HelathChecks;
+using Sentinel.Services.HelathChecks.Interfaces;
+using Sentinel.Services.LoggingContext.Interfaces;
+using Sentinel.Services.LogWriters.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sentinel.Services
+namespace Sentinel.Services.LoggingContext
 {
     public sealed class LoggerContext : ILoggerContext
     {
         private static ILoggerContext? _instance;
-
-        private static int _loggerIndexer = 0;
 
         private event EventHandler<ILogEntry>? LogCreatedEvent;
         private IHealthCheckService _healthCheckService;

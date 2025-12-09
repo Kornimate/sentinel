@@ -1,13 +1,14 @@
-﻿using Sentinel.Models.Interfaces;
+﻿using Sentinel.Models.Options.Interfaces;
 using Sentinel.Services;
-using Sentinel.Services.Interfaces;
+using Sentinel.Services.LogWriters;
+using Sentinel.Services.LogWriters.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sentinel.Models
+namespace Sentinel.Models.Options
 {
     public sealed class LoggerBuilderOptions : ILoggerBuilderOptions
     {

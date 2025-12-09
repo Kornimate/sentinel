@@ -1,6 +1,6 @@
 ﻿using Sentinel.Models;
-using Sentinel.Models.Interfaces;
-using Sentinel.Services.Interfaces;
+using Sentinel.Models.LogTypes.Interfaces;
+using Sentinel.Services.LogWriters.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
-namespace Sentinel.Services
+namespace Sentinel.Services.LogWriters
 {
     public abstract class LogWriterBase : ILogWriter, IAsyncDisposable
     {

@@ -4,10 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Sentinel.Models;
-using Sentinel.Models.Interfaces;
-using Sentinel.Services.Interfaces;
+using Sentinel.Models.Options;
+using Sentinel.Models.Options.Interfaces;
+using Sentinel.Services.Logger;
+using Sentinel.Services.Logger.Interfaces;
+using Sentinel.Services.LoggerBuilders.Interfaces;
+using Sentinel.Services.LoggingContext;
+using Sentinel.Services.LoggingContext.Interfaces;
+using Sentinel.Services.LogWriters;
+using Sentinel.Services.LogWriters.Interfaces;
 
-namespace Sentinel.Services
+namespace Sentinel.Services.LoggerBuilders
 {
     public sealed class LoggerBuilder : ILoggerBuilder
     {
@@ -24,6 +31,12 @@ namespace Sentinel.Services
             {
                 _context.AddLogWriter(logWriter); // loggers added to context
             }
+
+            return new LoggerBuilder();
+        }
+        public static ILoggerBuilder CreateLogger()
+        {
+            _context.AddLogWriter(new ConsoleLogWriter().Build()); // by default add just a console logger
 
             return new LoggerBuilder();
         }

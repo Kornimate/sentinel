@@ -1,4 +1,4 @@
-﻿using Sentinel.Models.Interfaces;
+﻿using Sentinel.Models.LogTypes.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sentinel.Models
+namespace Sentinel.Models.LogTypes
 {
     public sealed record LogEntry : ILogEntry
     {
@@ -21,9 +21,9 @@ namespace Sentinel.Models
                 TimeStamp = DateTime.UtcNow,
             };
         }
-        public string Text { get; private set; } = String.Empty;
+        public string Text { get; private set; } = string.Empty;
 
-        public string FilterData { get; private set; } = String.Empty;
+        public string FilterData { get; private set; } = string.Empty;
 
         public DateTime TimeStamp { get; private set; }
 

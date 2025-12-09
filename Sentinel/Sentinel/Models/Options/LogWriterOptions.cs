@@ -4,11 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Sentinel.Models.Interfaces;
-using Sentinel.Services.Interfaces;
+using Sentinel.Models.Options.Interfaces;
+using Sentinel.Services.LogWriters.Interfaces;
 using static System.Net.WebRequestMethods;
 
-namespace Sentinel.Models
+namespace Sentinel.Models.Options
 {
     internal sealed class LogWriterOptions : ILogWriterOptions
     {
