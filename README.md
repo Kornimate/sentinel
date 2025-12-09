@@ -1,8 +1,5 @@
 <p align="center">
-Sentinel
-</p>
-<p align="center">
-Logging library: it's watching and reporting on events.
+<h1>Sentinel</h1>
 </p>
 <p align="center">
 <img src="Images/sentinel_logo.png" width="300">`{=html}
