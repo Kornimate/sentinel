@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace Sentinel.Models.Interfaces
 {
@@ -10,6 +11,7 @@ namespace Sentinel.Models.Interfaces
     {
         string Text { get; }
         string FilterData { get; }
+
         DateTime TimeStamp { get; }
         Exception? Exception { get; }
         LogLevel Level { get; }

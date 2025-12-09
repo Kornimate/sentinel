@@ -26,7 +26,7 @@ namespace Sentinel.Models
 
             writerOptions(_logWriterOptions);
 
-            _logWriters.Add(_logWriterOptions.GetWriterInstance());
+            _logWriters.Add(_logWriterOptions.GetWriterInstance().Build());
 
             return this;
         }
@@ -38,18 +38,18 @@ namespace Sentinel.Models
 
             writerOptions(_logWriterOptions);
 
-            _logWriters.Add(_logWriterOptions.GetWriterInstance());
+            _logWriters.Add(_logWriterOptions.GetWriterInstance().Build());
 
             return this;
         }
 
         public ILoggerBuilderOptions AddXmlLogger(Action<ILogWriterOptions> writerOptions)
         {
-            _logWriterOptions = new LogWriterOptions(new JsonLogWriter());
+            _logWriterOptions = new LogWriterOptions(new XmlLogWriter());
 
             writerOptions(_logWriterOptions);
 
-            _logWriters.Add(_logWriterOptions.GetWriterInstance());
+            _logWriters.Add(_logWriterOptions.GetWriterInstance().Build());
 
             return this;
         }
@@ -59,7 +59,7 @@ namespace Sentinel.Models
 
             writerOptions(_logWriterOptions);
 
-            _logWriters.Add(_logWriterOptions.GetWriterInstance());
+            _logWriters.Add(_logWriterOptions.GetWriterInstance().Build());
 
             return this;
         }

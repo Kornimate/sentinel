@@ -12,9 +12,17 @@ namespace Sentinel.Services
     {
         private static ILoggerContext? _instance;
 
-        private event EventHandler<ILogEntry>? logCreatedEvent;
+        private static int _loggerIndexer = 0;
 
-        private LoggerContext() { } // to ensure singleton
+        private event EventHandler<ILogEntry>? LogCreatedEvent;
+        private IHealthCheckService _healthCheckService;
+        private IList<ILogWriter> _logWriters;
+
+        private LoggerContext()
+        {
+            _healthCheckService = new HealthCheckService();
+            _logWriters = [];
+        }
 
         internal static ILoggerContext GetInstance()
         {
@@ -23,12 +31,36 @@ namespace Sentinel.Services
 
         public void AddLogWriter(ILogWriter logWriter)
         {
-            this.logCreatedEvent += logWriter.AddLogMessage;
+            LogCreatedEvent += logWriter.AddLogMessage;
+
+            CheckIfLogWriterConfiguredCorrectly(logWriter);
+
+            _logWriters.Add(logWriter);
+
+            var loggerTask = logWriter.GetBackgroundConsumerTask();
+
+            _healthCheckService.AddTaskToCheck(logWriter, loggerTask is null ? logWriter.StartNewBackgroundTask() : loggerTask);
         }
 
         public void RaiseNewLogEntryEvent(ILogEntry logEntry)
         {
-            this.logCreatedEvent?.Invoke(this, logEntry);
+            LogCreatedEvent?.Invoke(this, logEntry);
+        }
+
+        private void CheckIfLogWriterConfiguredCorrectly(ILogWriter newLogWriter)
+        {
+            foreach (ILogWriter existingLogWriter in _logWriters)
+            {
+                if (!newLogWriter.WriteToConsole()
+                    && !existingLogWriter.WriteToConsole()
+                    && newLogWriter.GetFileName() != null
+                    && newLogWriter.GetFileName() == existingLogWriter.GetFileName()
+                    && newLogWriter.GetSubDirectory() == existingLogWriter.GetSubDirectory()
+                    && newLogWriter.GetFilePath() == existingLogWriter.GetFilePath())
+                {
+                    throw new ArgumentException("Loggers can not write the same file (same path, subdirectory and filename)");
+                }
+            }
         }
     }
 }

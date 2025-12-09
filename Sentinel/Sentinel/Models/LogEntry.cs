@@ -14,7 +14,7 @@ namespace Sentinel.Models
         {
             Text = message;
             Level = logLevel;
-            Exception = exception; 
+            Exception = exception;
             FilterData = caller;
             TimeStamp = DateTime.UtcNow;
         }
@@ -28,6 +28,9 @@ namespace Sentinel.Models
 
         public LogLevel Level { get; private set; }
 
-        public string Serialize() => String.Empty;
+        public string Serialize()
+        {
+            return $"{TimeStamp.ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'")} [{Level}]: {Text}{(Exception is null ? "" : ", " + Exception.ToString())}";
+        }
     }
 }

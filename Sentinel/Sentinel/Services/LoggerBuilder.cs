@@ -18,11 +18,11 @@ namespace Sentinel.Services
 
         public static ILoggerBuilder CreateLogger(Action<ILoggerBuilderOptions> loggerOptions)
         {
-            loggerOptions(_loggerBuilderOptions);
+            loggerOptions(_loggerBuilderOptions); // loggers first configured
 
             foreach (ILogWriter logWriter in _loggerBuilderOptions.GetRegisteredLogWrites())
             {
-                _context.AddLogWriter(logWriter);
+                _context.AddLogWriter(logWriter); // loggers added to context
             }
 
             return new LoggerBuilder();
