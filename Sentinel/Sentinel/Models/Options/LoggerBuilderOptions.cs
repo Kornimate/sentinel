@@ -56,7 +56,14 @@ namespace Sentinel.Models.Options
         }
         public ILoggerBuilderOptions AddCustomLogger<T>(Action<ILogWriterOptions> writerOptions) where T : ILogWriter
         {
-            _logWriterOptions = new LogWriterOptions(Activator.CreateInstance<T>());
+            try
+            {
+                _logWriterOptions = new LogWriterOptions(Activator.CreateInstance<T>());
+            }
+            catch (Exception)
+            {
+                throw new ArgumentException("ILogWriter derived class's contructor must be parameterless");
+            }
 
             writerOptions(_logWriterOptions);
 
@@ -93,7 +100,14 @@ namespace Sentinel.Models.Options
 
         public ILoggerBuilderOptions AddCustomLogger<T>() where T : ILogWriter
         {
-            _logWriters.Add(Activator.CreateInstance<T>().Build());
+            try
+            {
+                _logWriters.Add(Activator.CreateInstance<T>().Build());
+            }
+            catch (Exception)
+            {
+                throw new ArgumentException("ILogWriter derived class's contructor must be parameterless");
+            }
 
             return this;
         }

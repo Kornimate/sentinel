@@ -87,13 +87,20 @@ namespace Sentinel.Services.LogWriters
 
             CloseCurrentFileSilently();
 
-            _stream = new FileStream(
-                path,
-                FileMode.Append,
-                FileAccess.Write,
-                FileShare.Read,
-                bufferSize: 64 * 1024,
-                options: FileOptions.Asynchronous | FileOptions.WriteThrough);
+            try
+            {
+                _stream = new FileStream(
+                        path,
+                        FileMode.Append,
+                        FileAccess.Write,
+                        FileShare.Read,
+                        bufferSize: 64 * 1024,
+                        options: FileOptions.Asynchronous | FileOptions.WriteThrough);
+            }
+            catch (Exception)
+            {
+                throw new InvalidProgramException("Loggers can not write the same file!");
+            }
 
             _writer = new StreamWriter(_stream) { AutoFlush = false };
 

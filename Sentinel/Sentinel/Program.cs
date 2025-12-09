@@ -12,8 +12,8 @@ namespace Sentinel
             var builder = LoggerBuilder.CreateLogger(options =>
             {
                 options
-                    //.AddConsoleLogger()
-                    //.AddJsonLogger()
+                    .AddConsoleLogger()
+                    .AddJsonLogger()
                     .AddJsonLogger(options =>
                     {
                         options
@@ -22,10 +22,10 @@ namespace Sentinel
                         .WithLogFileName("Test")
                         .WithMinimumLogLevel(LogLevel.WARNG)
                         .WithSinkRollTiming(SinkRoll.DAILY);
-                    });
-                    //.AddXmlLogger()
-                    //.AddXmlLogger()
-                    //.AddCustomLogger<TxtLogWriter>();
+                    })
+                    .AddXmlLogger()
+                    .AddXmlLogger();
+                    //.AddCustomLogger<>();
             });
 
             var logger = builder.GetLogger<Program>();
