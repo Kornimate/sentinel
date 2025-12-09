@@ -2,7 +2,7 @@
 <h1>Sentinel</h1>
 </p>
 <p align="center">
-<img src="Images/sentinel_logo.png" width="300">`{=html}
+<img src="Images/sentinel_logo.png" width="300">
 </p>
 
 ---
