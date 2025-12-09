@@ -232,9 +232,6 @@ namespace Sentinel.Services.LogWriters
             if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentException("Invalid file path!", nameof(filePath));
 
-            if (!Path.Exists(filePath))
-                throw new ArgumentException("Path does not exist!");
-
             _filePath = filePath;
         }
 
@@ -251,7 +248,7 @@ namespace Sentinel.Services.LogWriters
             if (string.IsNullOrWhiteSpace(filter))
                 throw new ArgumentException("Invalid filter!", nameof(filter));
 
-            throw new NotImplementedException();
+            _filter = filter;
         }
 
         public sealed override void SetMinimiumLogLevel(LogLevel logLevel)

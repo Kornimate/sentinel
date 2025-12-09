@@ -81,7 +81,7 @@ namespace Sentinel.Services.LogWriters
             if (log.Level < _minimumLevel) // filter logs with LogLevel smaller than specified
                 return;
 
-            if (_filter != null && log.FilterData.IndexOf(_filter) == -1) // if filter is set filter for class names (full name with namespace)
+            if (EntryPassesFilter(log)) // if filter is set filter for class names (full name with namespace)
                 return;
 
             bool validChannel = _channel is not null;
@@ -130,6 +130,11 @@ namespace Sentinel.Services.LogWriters
         protected abstract Task ConsumeAsync(CancellationToken token);
 
         protected abstract Task WriteLogAsync(ILogEntry entry);
+
+        protected virtual bool EntryPassesFilter(ILogEntry log)
+        {
+            return _filter != null && log.FilterData.IndexOf(_filter) == -1; // fast check
+        }
 
         public virtual void SetFilePath(string filePath) => throw new NotImplementedException("This method is only implemented in FileLogWriterBase and derived types!");
 
