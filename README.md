@@ -1,6 +1,4 @@
-<p align="center">
-<h1>Sentinel</h1>
-</p>
+<h1 align="center">Sentinel</h1>
 <p align="center">
 <img src="Images/sentinel_logo.png" width="300">
 </p>
