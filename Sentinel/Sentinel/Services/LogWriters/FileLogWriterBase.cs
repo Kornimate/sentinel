@@ -14,18 +14,17 @@ namespace Sentinel.Services.LogWriters
     {
         private static int _loggerIndexer = 0;
 
-        // ----- Configs ------
+        // ----- Config fields ------
         protected string? _filePath = null;
         protected string? _fileName = null;
         protected SinkRoll _sinkTiming = SinkRoll.DAILY;
-        // ----- Configs end -----
 
         protected FileStream _stream = default!;
         protected StreamWriter _writer = default!;
 
         private Task? _flushDelay;
         protected readonly TimeSpan _flushInterval;
-        protected readonly TimeSpan _rotationInterval;
+        protected TimeSpan _rotationInterval;
         protected DateTime _nextRotationTime;
 
         protected readonly IList<ILogEntry> _batch = [];
@@ -33,11 +32,16 @@ namespace Sentinel.Services.LogWriters
         protected string SubDirectory { get; set; } = "Default";
         public string FileExtension { get; set; } = ".log";
 
+        private bool _isClosed; // double-dispose guard
+
+        private readonly SemaphoreSlim _ioLock; // guard for stream
+
         protected FileLogWriterBase() : base()
         {
             _flushInterval = TimeSpan.FromSeconds(1);
             _rotationInterval = TimeSpan.FromHours((int)_sinkTiming);
             _flushDelay = Task.CompletedTask;
+            _ioLock = new SemaphoreSlim(1, 1);
         }
 
         public sealed override ILogWriter Build()
@@ -47,43 +51,41 @@ namespace Sentinel.Services.LogWriters
 
             if (_filePath is null)
             {
-                _filePath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "Logs", SubDirectory);
+                _filePath = Path.Combine(
+                    Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!,
+                    "Logs",
+                    SubDirectory);
             }
             else
             {
                 _filePath = Path.Combine(_filePath, SubDirectory);
             }
 
-            if(_fileName is null)
+            if (_fileName is null)
             {
                 _fileName = (++_loggerIndexer).ToString();
             }
 
-            OpenNewOrExistingFile(); // open file before background task starts to write it (starts in base.Build())
+            _rotationInterval = TimeSpan.FromHours((int)_sinkTiming);
+
+            OpenNewOrExistingFile();
 
             return base.Build();
         }
 
         protected virtual void OpenNewOrExistingFile()
         {
-
             var timestamp = DateTime.UtcNow.ToString("yyyyMMdd_HH");
-            var path = Path.Combine(_filePath!, $"{timestamp}{(_fileName is not null ? "_" + _fileName : "")}{(FileExtension.IndexOf(".") == -1 ? "." + FileExtension : FileExtension)}");
+            var path = Path.Combine(
+                _filePath!,
+                $"{timestamp}{(_fileName is not null ? "_id_" + _fileName : "")}" +
+                $"{(FileExtension.IndexOf('.') == -1 ? "." + FileExtension : FileExtension)}");
 
-            if (!Directory.Exists(Path.GetDirectoryName(path)))
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-            }
+            var dir = Path.GetDirectoryName(path)!;
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
 
-            if (_writer != default && _writer != null)
-            {
-                _writer?.Dispose();
-            }
-
-            if (_stream != default && _stream != null)
-            {
-                _stream?.Dispose();
-            }
+            CloseCurrentFileSilently();
 
             _stream = new FileStream(
                 path,
@@ -93,26 +95,26 @@ namespace Sentinel.Services.LogWriters
                 bufferSize: 64 * 1024,
                 options: FileOptions.Asynchronous | FileOptions.WriteThrough);
 
-
             _writer = new StreamWriter(_stream) { AutoFlush = false };
 
             _nextRotationTime = DateTime.UtcNow + _rotationInterval;
+            _isClosed = false;
         }
 
-        protected override async Task ConsumeAsync()
+        protected override async Task ConsumeAsync(CancellationToken token)
         {
-            _flushDelay = Task.Delay(_flushInterval);
+            _flushDelay = Task.Delay(_flushInterval); // NO token should be passed
 
             try
             {
-                await foreach (var entry in _channel?.Reader.ReadAllAsync()!)
+                await foreach (var entry in _channel!.Reader.ReadAllAsync(token))
                 {
                     await WriteEntryToFileOrBatch(entry);
                 }
             }
             finally
             {
-                if (_batch != null && _batch.Count > 0)
+                if (_batch.Count > 0)
                     await FlushBatchAsync(forceFsync: true);
 
                 await CloseCurrentFileAsync();
@@ -128,20 +130,13 @@ namespace Sentinel.Services.LogWriters
         {
             _batch.Add(entry);
 
-            if (entry.Level >= LogLevel.ERROR)
+            if (entry.Level >= LogLevel.ERROR || _batch.Count >= BatchSize)
             {
-                await FlushBatchAsync(forceFsync: true);
+                await FlushBatchAsync(forceFsync: entry.Level >= LogLevel.ERROR);
                 _flushDelay = Task.Delay(_flushInterval);
             }
 
-
-            else if (_batch.Count >= BatchSize)
-            {
-                await FlushBatchAsync(forceFsync: false);
-                _flushDelay = Task.Delay(_flushInterval);
-            }
-
-            if (_flushDelay is not null && _flushDelay.IsCompleted)
+            if (_flushDelay != null && _flushDelay.IsCompleted)
             {
                 await FlushBatchAsync(forceFsync: false);
                 _flushDelay = Task.Delay(_flushInterval);
@@ -155,10 +150,7 @@ namespace Sentinel.Services.LogWriters
 
         protected virtual bool ShouldRotate()
         {
-            if (DateTime.UtcNow >= _nextRotationTime)
-                return true;
-
-            return false;
+            return DateTime.UtcNow >= _nextRotationTime;
         }
 
         protected virtual async Task RotateAsync()
@@ -170,29 +162,70 @@ namespace Sentinel.Services.LogWriters
 
         protected virtual async Task CloseCurrentFileAsync()
         {
-            await _writer.FlushAsync();
-            _stream.Flush(true);
+            await _ioLock.WaitAsync();
 
-            await _writer.DisposeAsync();
-            _stream.Dispose();
+            try
+            {
+                if (_isClosed) return;
+                _isClosed = true;
+
+                await _writer.FlushAsync();
+                _stream.Flush(true);
+
+                await _writer.DisposeAsync();
+                _stream.Dispose();
+            }
+            finally
+            {
+                _ioLock.Release();
+            }
+        }
+
+        private void CloseCurrentFileSilently()
+        {
+            _ioLock.Wait();
+
+            if (_isClosed) return;
+            _isClosed = true;
+
+            try
+            {
+                _writer?.Dispose();
+                _stream?.Dispose();
+            }
+            catch { }
+            finally
+            {
+                _ioLock.Release();
+            }
         }
 
         protected virtual async Task FlushBatchAsync(bool forceFsync)
         {
-            foreach (var entry in _batch)
+            await _ioLock.WaitAsync();
+            try
             {
-                await WriteLogAsync(entry);
+                foreach (var entry in _batch)
+                {
+                    await WriteLogAsync(entry);
+                }
+
+                _batch.Clear();
+
+                await _writer.FlushAsync();
+
+                if (forceFsync)
+                {
+                    _stream.Flush(true);
+                }
             }
-
-            _batch.Clear();
-
-            await _writer.FlushAsync();
-
-            if (forceFsync)
+            finally
             {
-                _stream.Flush(true);
+                _ioLock.Release();
             }
         }
+
+        // ---------- Config API ----------
 
         public sealed override void SetFilePath(string filePath)
         {
@@ -229,7 +262,9 @@ namespace Sentinel.Services.LogWriters
         public sealed override void SetSinkTiming(SinkRoll sinkRoll)
         {
             _sinkTiming = sinkRoll;
+            _rotationInterval = TimeSpan.FromHours((int)sinkRoll);
         }
+
         public sealed override void SetSubDirectory(string dirName)
         {
             if (string.IsNullOrWhiteSpace(dirName))
@@ -238,26 +273,23 @@ namespace Sentinel.Services.LogWriters
             SubDirectory = dirName;
         }
 
+        // ---------- Shutdown ----------
+
         public override async ValueTask DisposeAsync()
         {
-            _channel?.Writer.Complete();
+            if (_batch.Count > 0)
+                await FlushBatchAsync(forceFsync: true);
+
+            await CloseCurrentFileAsync();
 
             await base.DisposeAsync();
         }
 
-        public sealed override string? GetFilePath()
-        {
-            return _filePath;
-        }
 
-        public sealed override string? GetFileName()
-        {
-            return _fileName;
-        }
+        // ---------- Getters ----------
 
-        public sealed override string? GetSubDirectory()
-        {
-            return SubDirectory;
-        }
+        public sealed override string? GetFilePath() => _filePath;
+        public sealed override string? GetFileName() => _fileName;
+        public sealed override string? GetSubDirectory() => SubDirectory;
     }
 }

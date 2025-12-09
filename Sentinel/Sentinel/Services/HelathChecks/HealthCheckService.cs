@@ -12,7 +12,7 @@ namespace Sentinel.Services.HelathChecks
     {
         private IDictionary<ILogWriter, Task> _tasksToCheck;
         private CancellationTokenSource _cts;
-        private PeriodicTimer _timer;
+        private PeriodicTimer? _timer;
         public HealthCheckService()
         {
             _cts = new CancellationTokenSource();
@@ -37,6 +37,7 @@ namespace Sentinel.Services.HelathChecks
         {
             foreach (var (logWriter, task) in _tasksToCheck)
             {
+
                 if (task.IsCompleted) // restart task if needed
                 {
                     task.Dispose();

@@ -1,39 +1,66 @@
 ﻿using Sentinel.Models.LogTypes.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace Sentinel.Models.LogTypes
 {
+    [XmlRoot("log")]
     public sealed record LogEntry : ILogEntry
     {
-        public static ILogEntry CreateLogEntry(string message, string caller = "", LogLevel logLevel = LogLevel.VERBS, Exception? exception = null)
+        public static ILogEntry CreateLogEntry(
+            string message,
+            string caller = "",
+            LogLevel logLevel = LogLevel.VERBS,
+            Exception? exception = null)
         {
-            return new LogEntry()
+            return new LogEntry
             {
                 Text = message,
                 Level = logLevel,
                 Exception = exception,
                 FilterData = caller,
-                TimeStamp = DateTime.UtcNow,
+                TimeStamp = DateTime.UtcNow
             };
         }
-        public string Text { get; private set; } = string.Empty;
 
-        public string FilterData { get; private set; } = string.Empty;
+        [XmlText]
+        public string Text { get; set; } = string.Empty;
 
-        public DateTime TimeStamp { get; private set; }
+        [XmlIgnore]
+        public string FilterData { get; set; } = string.Empty;
 
-        public Exception? Exception { get; private set; }
+        [XmlAttribute("ts")]
+        public string TimeStampString
+        {
+            get => TimeStamp.ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'");
+            set { } // required for XmlSerializer
+        }
 
-        public LogLevel Level { get; private set; }
+        [XmlIgnore]
+        public DateTime TimeStamp { get; set; }
 
+        [XmlAttribute("level")]
+        public string LevelString
+        {
+            get => Level.ToString();
+            set { }
+        }
+
+        [XmlIgnore]
+        public LogLevel Level { get; set; }
+
+        [XmlIgnore]
+        public Exception? Exception { get; set; }
+
+        [XmlElement("exception")]
+        public string? ExceptionText
+        {
+            get => Exception?.ToString() ?? "-";
+            set { }
+        }
         public string Serialize()
         {
-            return $"{TimeStamp:yyyy-MM-dd'T'HH:mm:ss.fff'Z'} [{Level}]: {Text}{(Exception is null ? "" : ", " + Exception.ToString())}";
+            return $"{TimeStamp:yyyy-MM-dd'T'HH:mm:ss.fff'Z'} [{Level}]: {Text}" + (Exception is null ? "" : ", " + Exception);
         }
     }
 }

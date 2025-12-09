@@ -26,9 +26,14 @@ namespace Sentinel.Services.LogWriters
         private Task? _backgroundTask;
         protected CancellationTokenSource _cts;
 
+        private bool _alreadyBuilt;
+        private bool _alreadyDisposed;
+
         protected LogWriterBase()
         {
             _cts = new CancellationTokenSource();
+            _alreadyBuilt = false;
+            _alreadyDisposed = false;
         }
 
         public Task StartNewBackgroundTask()
@@ -36,7 +41,7 @@ namespace Sentinel.Services.LogWriters
             if (_backgroundTask != null && !_backgroundTask.IsCompleted)
                 return _backgroundTask;
 
-            _backgroundTask = Task.Run(ConsumeAsync, _cts.Token);
+            _backgroundTask = Task.Run(() => ConsumeAsync(_cts.Token));
 
             return _backgroundTask;
         }
@@ -48,6 +53,9 @@ namespace Sentinel.Services.LogWriters
 
         public virtual ILogWriter Build()
         {
+            if (_alreadyBuilt)
+                return this;
+
             _channel = Channel.CreateBounded<ILogEntry>(new BoundedChannelOptions(_channelSize)
             {
                 FullMode = BoundedChannelFullMode.Wait,
@@ -56,6 +64,11 @@ namespace Sentinel.Services.LogWriters
             });
 
             _backgroundTask = StartNewBackgroundTask();
+
+            _alreadyBuilt = true;
+
+            AppDomain.CurrentDomain.ProcessExit += (_, _) => ShutDown();
+            Console.CancelKeyPress += (_, _) => ShutDown();
 
             return this;
         }
@@ -88,19 +101,33 @@ namespace Sentinel.Services.LogWriters
 
         public virtual async ValueTask DisposeAsync()
         {
-            GC.SuppressFinalize(this);
+            await Task.Delay(TimeSpan.FromSeconds(0.5)); // give time to empty the channels 
 
-            if (_backgroundTask != null)
+            _cts?.Cancel();
+
+            _channel?.Writer.TryComplete();
+
+            try
             {
-                await _cts.CancelAsync();
+                if (_backgroundTask != null)
+                    await _backgroundTask;
             }
+            catch (OperationCanceledException) { } // swallow it
+
+            GC.SuppressFinalize(this);
         }
+
         public void ShutDown()
         {
+            if (_alreadyDisposed)
+                return;
+
             DisposeAsync().AsTask().Wait();
+
+            _alreadyDisposed = true;
         }
 
-        protected abstract Task ConsumeAsync();
+        protected abstract Task ConsumeAsync(CancellationToken token);
 
         protected abstract Task WriteLogAsync(ILogEntry entry);
 

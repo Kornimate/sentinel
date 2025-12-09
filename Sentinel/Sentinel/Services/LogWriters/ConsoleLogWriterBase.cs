@@ -15,14 +15,9 @@ namespace Sentinel.Services.LogWriters
 
         public override bool WriteToConsole() => true;
 
-        public sealed override ILogWriter Build()
+        protected sealed override async Task ConsumeAsync(CancellationToken token)
         {
-            return base.Build();
-        }
-
-        protected sealed override async Task ConsumeAsync()
-        {
-            await foreach (var entry in _channel?.Reader.ReadAllAsync()!)
+            await foreach (var entry in _channel?.Reader.ReadAllAsync(token)!)
             {
                 await WriteLogAsync(entry);
             }
