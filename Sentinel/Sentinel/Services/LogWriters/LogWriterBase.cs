@@ -136,13 +136,23 @@ namespace Sentinel.Services.LogWriters
             return _filter != null && log.FilterData.IndexOf(_filter) == -1; // fast check
         }
 
+        public void SetFilter(string filter)
+        {
+            if (string.IsNullOrWhiteSpace(filter))
+                throw new ArgumentException("Invalid filter!", nameof(filter));
+
+            _filter = filter;
+        }
+
+        public void SetMinimiumLogLevel(LogLevel logLevel)
+        {
+            _minimumLevel = logLevel;
+        }
+
         public virtual void SetFilePath(string filePath) => throw new NotImplementedException("This method is only implemented in FileLogWriterBase and derived types!");
 
         public virtual void SetFileName(string fileName) => throw new NotImplementedException("This method is only implemented in FileLogWriterBase and derived types!");
 
-        public virtual void SetFilter(string filter) => throw new NotImplementedException("This method is only implemented in FileLogWriterBase and derived types!");
-
-        public virtual void SetMinimiumLogLevel(LogLevel logLevel) => throw new NotImplementedException("This method is only implemented in FileLogWriterBase and derived types!");
 
         public virtual void SetSinkTiming(SinkRoll sinkRoll) => throw new NotImplementedException("This method is only implemented in FileLogWriterBase and derived types!");
 

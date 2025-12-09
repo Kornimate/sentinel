@@ -250,19 +250,6 @@ namespace Sentinel.Services.LogWriters
             _fileName = fileName;
         }
 
-        public sealed override void SetFilter(string filter)
-        {
-            if (string.IsNullOrWhiteSpace(filter))
-                throw new ArgumentException("Invalid filter!", nameof(filter));
-
-            _filter = filter;
-        }
-
-        public sealed override void SetMinimiumLogLevel(LogLevel logLevel)
-        {
-            _minimumLevel = logLevel;
-        }
-
         public sealed override void SetSinkTiming(SinkRoll sinkRoll)
         {
             _sinkTiming = sinkRoll;
