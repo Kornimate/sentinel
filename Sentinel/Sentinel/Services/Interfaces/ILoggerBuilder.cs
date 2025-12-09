@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 namespace Sentinel.Services.Interfaces
 {
     public interface ILoggerBuilder
-    { 
+    {
+        ISentinelLogger<T> GetLogger<T>() where T : class;
     }
 }

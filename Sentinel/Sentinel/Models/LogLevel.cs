@@ -8,10 +8,10 @@ namespace Sentinel.Models
 {
     public enum LogLevel
     {
-        VERBOSE = 0,
+        VERBS = 0,
         DEBUG = 1,
-        INFORMATION = 2,
-        WARNING = 3,
+        INFOR = 2,
+        WARNG = 3,
         ERROR = 4,
         FATAL = 5
     }

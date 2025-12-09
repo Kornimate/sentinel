@@ -55,7 +55,7 @@ namespace Sentinel.Models
         }
         public ILoggerBuilderOptions AddCustomLogger<T>(Action<ILogWriterOptions> writerOptions) where T : ILogWriter
         {
-            _logWriterOptions = new LogWriterOptions(new JsonLogWriter());
+            _logWriterOptions = new LogWriterOptions(Activator.CreateInstance<T>());
 
             writerOptions(_logWriterOptions);
 
@@ -67,6 +67,34 @@ namespace Sentinel.Models
         public IEnumerable<ILogWriter> GetRegisteredLogWrites()
         {
             return _logWriters;
+        }
+
+        public ILoggerBuilderOptions AddJsonLogger()
+        {
+            _logWriters.Add(new JsonLogWriter().Build());
+
+            return this;
+        }
+
+        public ILoggerBuilderOptions AddXmlLogger()
+        {
+            _logWriters.Add(new XmlLogWriter().Build());
+
+            return this;
+        }
+
+        public ILoggerBuilderOptions AddConsoleLogger()
+        {
+            _logWriters.Add(new ConsoleLogWriter().Build());
+
+            return this;
+        }
+
+        public ILoggerBuilderOptions AddCustomLogger<T>() where T : ILogWriter
+        {
+            _logWriters.Add(Activator.CreateInstance<T>().Build());
+
+            return this;
         }
     }
 }

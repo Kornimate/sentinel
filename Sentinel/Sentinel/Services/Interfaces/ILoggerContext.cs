@@ -11,5 +11,6 @@ namespace Sentinel.Services.Interfaces
     {
         void AddLogWriter(ILogWriter logWriter);
         void RaiseNewLogEntryEvent(ILogEntry logEntry);
+        void ShutDown();
     }
 }

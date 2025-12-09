@@ -62,5 +62,15 @@ namespace Sentinel.Services
                 }
             }
         }
+
+        public void ShutDown()
+        {
+            _healthCheckService?.ShutDown();
+
+            foreach (var logWriter in _logWriters)
+            {
+                logWriter?.ShutDown();
+            }
+        }
     }
 }

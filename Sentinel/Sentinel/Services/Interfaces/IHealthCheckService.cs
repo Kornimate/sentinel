@@ -8,7 +8,7 @@ namespace Sentinel.Services.Interfaces
 {
     internal interface IHealthCheckService
     {
-        Task RunAsync();
         void AddTaskToCheck(ILogWriter taskOwner, Task taskToCheck);
+        void ShutDown();
     }
 }

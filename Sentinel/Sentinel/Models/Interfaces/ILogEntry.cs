@@ -11,7 +11,6 @@ namespace Sentinel.Models.Interfaces
     {
         string Text { get; }
         string FilterData { get; }
-
         DateTime TimeStamp { get; }
         Exception? Exception { get; }
         LogLevel Level { get; }

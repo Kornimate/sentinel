@@ -10,17 +10,20 @@ namespace Sentinel.Models
 {
     public sealed record LogEntry : ILogEntry
     {
-        public LogEntry(string message, string caller = "", LogLevel logLevel = LogLevel.VERBOSE, Exception? exception = null)
+        public static ILogEntry CreateLogEntry(string message, string caller = "", LogLevel logLevel = LogLevel.VERBS, Exception? exception = null)
         {
-            Text = message;
-            Level = logLevel;
-            Exception = exception;
-            FilterData = caller;
-            TimeStamp = DateTime.UtcNow;
+            return new LogEntry()
+            {
+                Text = message,
+                Level = logLevel,
+                Exception = exception,
+                FilterData = caller,
+                TimeStamp = DateTime.UtcNow,
+            };
         }
-        public string Text { get; private set; }
+        public string Text { get; private set; } = String.Empty;
 
-        public string FilterData { get; private set; }
+        public string FilterData { get; private set; } = String.Empty;
 
         public DateTime TimeStamp { get; private set; }
 
@@ -30,7 +33,7 @@ namespace Sentinel.Models
 
         public string Serialize()
         {
-            return $"{TimeStamp.ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'")} [{Level}]: {Text}{(Exception is null ? "" : ", " + Exception.ToString())}";
+            return $"{TimeStamp:yyyy-MM-dd'T'HH:mm:ss.fff'Z'} [{Level}]: {Text}{(Exception is null ? "" : ", " + Exception.ToString())}";
         }
     }
 }

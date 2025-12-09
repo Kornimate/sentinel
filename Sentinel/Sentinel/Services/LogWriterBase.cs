@@ -16,7 +16,7 @@ namespace Sentinel.Services
     {
         // ----- Configs ------
         protected string? _filter = null;
-        protected LogLevel _minimumLevel = LogLevel.VERBOSE;
+        protected LogLevel _minimumLevel = LogLevel.VERBS;
         // ------ Configs end ------
 
         protected static readonly int _channelSize = 50_000;
@@ -24,15 +24,19 @@ namespace Sentinel.Services
 
         protected Channel<ILogEntry>? _channel;
         private Task? _backgroundTask;
+        protected CancellationTokenSource _cts;
 
-        protected LogWriterBase() { }
+        protected LogWriterBase()
+        {
+            _cts = new CancellationTokenSource();
+        }
 
         public Task StartNewBackgroundTask()
         {
             if (_backgroundTask != null && !_backgroundTask.IsCompleted)
                 return _backgroundTask;
 
-            _backgroundTask = Task.Run(ConsumeAsync);
+            _backgroundTask = Task.Run(ConsumeAsync, _cts.Token);
 
             return _backgroundTask;
         }
@@ -69,24 +73,26 @@ namespace Sentinel.Services
 
             bool validChannel = _channel is not null;
 
-            if (validChannel && _channel!.Writer.TryWrite(log)) // try sync write
-                return;
-
-            if (validChannel)
+            try
             {
-                _ = _channel!.Writer.WriteAsync(log); // if not start async write process
+                if (validChannel && _channel!.Writer.TryWrite(log)) // try sync write
+                    return;
+
+                if (validChannel)
+                {
+                    _ = _channel!.Writer.WriteAsync(log); // if not start async write process
+                }
             }
+            catch (ChannelClosedException) { } // dont to anything cause the channel is closed
         }
 
         public virtual async ValueTask DisposeAsync()
         {
             GC.SuppressFinalize(this);
 
-            _channel?.Writer.Complete();
-
             if (_backgroundTask != null)
             {
-                await _backgroundTask!;
+                await _cts.CancelAsync();
             }
         }
         public void ShutDown()

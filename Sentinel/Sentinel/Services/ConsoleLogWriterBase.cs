@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Sentinel.Services
 {
-    public class ConsoleLogWriterBase : LogWriterBase
+    public abstract class ConsoleLogWriterBase : LogWriterBase
     {
         public ConsoleLogWriterBase() : base() { }
 

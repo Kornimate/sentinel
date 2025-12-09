@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Sentinel.Services
 {
-    public class FileLogWriterBase : LogWriterBase
+    public abstract class FileLogWriterBase : LogWriterBase
     {
         // ----- Configs ------
         protected string? _filePath = null;
@@ -45,7 +45,7 @@ namespace Sentinel.Services
 
             if (_filePath is null)
             {
-                _filePath = Path.Combine(Assembly.GetExecutingAssembly().Location, "Logs", SubDirectory);
+                _filePath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "Logs", SubDirectory);
             }
             else
             {
@@ -62,6 +62,11 @@ namespace Sentinel.Services
 
             var timestamp = DateTime.UtcNow.ToString("yyyyMMdd_HH");
             var path = Path.Combine(_filePath!, $"{timestamp}{(_fileName is not null ? "_" + _fileName : "")}{(FileExtension.IndexOf(".") == -1 ? "." + FileExtension : FileExtension)}");
+
+            if (!Directory.Exists(Path.GetDirectoryName(path)))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+            }
 
             if (_writer != default && _writer != null)
             {
