@@ -19,7 +19,7 @@ namespace Sentinel.Services.LogWriters
         protected LogLevel _minimumLevel = LogLevel.VERBS;
         // ------ Configs end ------
 
-        protected static readonly int _channelSize = 50_000;
+        protected int _channelSize = 50_000;
         protected readonly static int BatchSize = 5;
 
         protected Channel<ILogEntry>? _channel;
@@ -147,6 +147,13 @@ namespace Sentinel.Services.LogWriters
         public void SetMinimiumLogLevel(LogLevel logLevel)
         {
             _minimumLevel = logLevel;
+        }
+        public void SetLogContainerSize(int size)
+        {
+            if (size < 0 || size > 1_000_000)
+                throw new ArgumentException("Size must be between 0 and 1_000_000!", nameof(size));
+
+            _channelSize = size;
         }
 
         public virtual void SetFilePath(string filePath) => throw new NotImplementedException("This method is only implemented in FileLogWriterBase and derived types!");

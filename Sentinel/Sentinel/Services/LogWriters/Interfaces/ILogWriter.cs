@@ -19,6 +19,7 @@ namespace Sentinel.Services.LogWriters.Interfaces
         void SetFilter(string filter);
         void SetMinimiumLogLevel(LogLevel logLevel);
         void SetSinkTiming(SinkRoll sinkRoll);
+        void SetLogContainerSize(int size);
         string? GetFilePath();
         string? GetFileName();
         string? GetSubDirectory();

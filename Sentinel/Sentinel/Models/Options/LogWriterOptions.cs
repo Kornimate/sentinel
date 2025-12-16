@@ -57,5 +57,12 @@ namespace Sentinel.Models.Options
 
             return this;
         }
+
+        public ILogWriterOptions WithLogContainerSize(int size)
+        {
+            _logWriter.SetLogContainerSize(size);
+
+            return this;
+        }
     }
 }

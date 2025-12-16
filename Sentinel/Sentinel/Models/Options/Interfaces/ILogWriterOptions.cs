@@ -14,6 +14,7 @@ namespace Sentinel.Models.Options.Interfaces
         ILogWriterOptions WithLoggedClassFilter(string filter);
         ILogWriterOptions WithMinimumLogLevel(LogLevel logLevel);
         ILogWriterOptions WithSinkRollTiming(SinkRoll sinkRoll);
+        ILogWriterOptions WithLogContainerSize(int size);
         ILogWriter GetWriterInstance();
     }
 }
