@@ -16,7 +16,6 @@ namespace Sentinel.Services.Logger.Interfaces
         void LogError(string message, Exception? exception = null);
         void LogFatal(string message, Exception? exception = null);
         void Log(LogLevel logLevel, string message, Exception? exception = null);
-
         void ShutDown();
     }
 

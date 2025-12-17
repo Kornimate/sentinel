@@ -123,7 +123,11 @@ namespace Sentinel.Services.LogWriters
             if (_alreadyDisposed)
                 return;
 
-            DisposeAsync().AsTask().Wait();
+            try
+            {
+                DisposeAsync().AsTask().Wait();
+            }
+            catch (Exception) { } // swallow it
 
             _alreadyDisposed = true;
         }
