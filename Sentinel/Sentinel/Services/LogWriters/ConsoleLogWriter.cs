@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace Sentinel.Services.LogWriters
 {
-    internal sealed class ConsoleLogWriter : ConsoleLogWriterBase { }
+    internal sealed class ConsoleLogWriter : BatchlessLogWriterBase { }
 }

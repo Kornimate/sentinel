@@ -9,11 +9,9 @@ using Sentinel.Models.LogTypes.Interfaces;
 
 namespace Sentinel.Services.LogWriters
 {
-    public abstract class ConsoleLogWriterBase : LogWriterBase
+    public abstract class BatchlessLogWriterBase : LogWriterBase
     {
-        public ConsoleLogWriterBase() : base() { }
-
-        public override bool WriteToConsole() => true;
+        public BatchlessLogWriterBase() : base() { }
 
         protected sealed override async Task ConsumeAsync(CancellationToken token)
         {

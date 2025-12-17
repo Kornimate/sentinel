@@ -13,7 +13,7 @@ namespace Sentinel.Tests
     [TestClass]
     public class ConsoleLogWriterBaseTest
     {
-        private sealed class TestConsoleLogWriter : ConsoleLogWriterBase
+        private sealed class TestConsoleLogWriter : BatchlessLogWriterBase
         {
             public readonly List<ILogEntry> Written = new();
 

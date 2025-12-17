@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Sentinel.Services.LogWriters
 {
-    public abstract class FileLogWriterBase : LogWriterBase
+    public abstract class FileLogWriterBase : BatchedLogWriterBase, IFileLogWriter
     {
         private static int _loggerIndexer = 0;
 
@@ -61,10 +61,7 @@ namespace Sentinel.Services.LogWriters
                 _filePath = Path.Combine(_filePath, SubDirectory);
             }
 
-            if (_fileName is null)
-            {
-                _fileName = (++_loggerIndexer).ToString();
-            }
+            _fileName ??= (++_loggerIndexer).ToString();
 
             _rotationInterval = TimeSpan.FromHours((int)_sinkTiming);
 
@@ -73,13 +70,60 @@ namespace Sentinel.Services.LogWriters
             return base.Build();
         }
 
+        protected override async Task ConsumeAsync(CancellationToken token)
+        {
+            _flushDelay = Task.Delay(_flushInterval); // NO token should be passed
+
+            try
+            {
+                await foreach (var entry in _channel!.Reader.ReadAllAsync(token))
+                {
+                    await WriteEntryToBatchOrFlush(entry);
+                }
+            }
+            finally
+            {
+                if (_batch.Count > 0)
+                    await FlushBatchAsync(forceFsync: true);
+
+                await CloseCurrentFileAsync();
+            }
+        }
+
+        protected override Task WriteLogAsync(ILogEntry entry)
+        {
+            return _writer.WriteLineAsync(entry.Serialize());
+        }
+
+        protected override async Task WriteEntryToBatchOrFlush(ILogEntry entry)
+        {
+            _batch.Add(entry);
+
+            if (entry.Level >= LogLevel.ERROR || _batch.Count >= BatchSize)
+            {
+                await FlushBatchAsync(forceFsync: entry.Level >= LogLevel.ERROR);
+                _flushDelay = Task.Delay(_flushInterval);
+            }
+
+            if (_flushDelay != null && _flushDelay.IsCompleted)
+            {
+                await FlushBatchAsync(forceFsync: false);
+                _flushDelay = Task.Delay(_flushInterval);
+            }
+
+            if (ShouldRotate())
+            {
+                await RotateAsync();
+            }
+        }
+
         protected virtual void OpenNewOrExistingFile()
         {
             var timestamp = DateTime.UtcNow.ToString(_sinkTiming == SinkRoll.HOURLY ? "yyyyMMdd_HH" : "yyyMMdd");
             var path = Path.Combine(
                 _filePath!,
                 $"{timestamp}{(_fileName is not null ? "_id_" + _fileName : "")}" +
-                $"{(FileExtension.StartsWith('.')  ? FileExtension : "." + FileExtension)}");
+                $"{(FileExtension.StartsWith('.') ? FileExtension : "." + FileExtension)}");
 
             var dir = Path.GetDirectoryName(path)!;
             if (!Directory.Exists(dir))
@@ -106,53 +150,6 @@ namespace Sentinel.Services.LogWriters
 
             _nextRotationTime = DateTime.UtcNow + _rotationInterval;
             _isClosed = false;
-        }
-
-        protected override async Task ConsumeAsync(CancellationToken token)
-        {
-            _flushDelay = Task.Delay(_flushInterval); // NO token should be passed
-
-            try
-            {
-                await foreach (var entry in _channel!.Reader.ReadAllAsync(token))
-                {
-                    await WriteEntryToFileOrBatch(entry);
-                }
-            }
-            finally
-            {
-                if (_batch.Count > 0)
-                    await FlushBatchAsync(forceFsync: true);
-
-                await CloseCurrentFileAsync();
-            }
-        }
-
-        protected override Task WriteLogAsync(ILogEntry entry)
-        {
-            return _writer.WriteLineAsync(entry.Serialize());
-        }
-
-        protected virtual async Task WriteEntryToFileOrBatch(ILogEntry entry)
-        {
-            _batch.Add(entry);
-
-            if (entry.Level >= LogLevel.ERROR || _batch.Count >= BatchSize)
-            {
-                await FlushBatchAsync(forceFsync: entry.Level >= LogLevel.ERROR);
-                _flushDelay = Task.Delay(_flushInterval);
-            }
-
-            if (_flushDelay != null && _flushDelay.IsCompleted)
-            {
-                await FlushBatchAsync(forceFsync: false);
-                _flushDelay = Task.Delay(_flushInterval);
-            }
-
-            if (ShouldRotate())
-            {
-                await RotateAsync();
-            }
         }
 
         protected virtual bool ShouldRotate()
@@ -207,17 +204,17 @@ namespace Sentinel.Services.LogWriters
             }
         }
 
+        protected sealed override async Task FlushBatchAsync()
+        {
+            await base.FlushBatchAsync();
+        }
+
         protected virtual async Task FlushBatchAsync(bool forceFsync)
         {
             await _ioLock.WaitAsync();
             try
             {
-                foreach (var entry in _batch)
-                {
-                    await WriteLogAsync(entry);
-                }
-
-                _batch.Clear();
+                await FlushBatchAsync();
 
                 await _writer.FlushAsync();
 

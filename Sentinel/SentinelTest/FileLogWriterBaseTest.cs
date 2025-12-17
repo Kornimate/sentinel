@@ -15,7 +15,7 @@ namespace Sentinel.Tests
     {
         private sealed class TestFileLogWriter : FileLogWriterBase
         {
-            public Task InvokeWriteEntry(ILogEntry entry) => WriteEntryToFileOrBatch(entry);
+            public Task InvokeWriteEntry(ILogEntry entry) => WriteEntryToBatchOrFlush(entry);
             public bool InvokeShouldRotate() => ShouldRotate();
         }
 
