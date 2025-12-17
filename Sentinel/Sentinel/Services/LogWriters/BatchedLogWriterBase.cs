@@ -57,5 +57,13 @@ namespace Sentinel.Services.LogWriters
 
             return Task.CompletedTask;
         }
+
+        public override async ValueTask DisposeAsync()
+        {
+            if (_batch.Count > 0)
+                await FlushBatchAsync();
+
+            await base.DisposeAsync();
+        }
     }
 }
