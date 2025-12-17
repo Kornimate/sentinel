@@ -9,6 +9,6 @@ namespace Sentinel.Models.Options.Interfaces
 {
     public interface ILogWriterOptionsBase
     {
-        ILogWriter GetWriterInstance();
+        internal ILogWriter GetWriterInstance();
     }
 }

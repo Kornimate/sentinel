@@ -202,7 +202,7 @@ namespace Sentinel.Services.LogWriters
             }
         }
 
-        protected sealed override async Task FlushBatchAsync()
+        protected sealed override async Task FlushBatchAsync() // hide it from derived classes
         {
             await base.FlushBatchAsync();
         }
