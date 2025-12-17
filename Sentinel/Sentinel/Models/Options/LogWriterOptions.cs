@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Sentinel.Models.Options.Interfaces;
+using Sentinel.Services.LogWriters;
 using Sentinel.Services.LogWriters.Interfaces;
 using static System.Net.WebRequestMethods;
 
@@ -23,20 +24,6 @@ namespace Sentinel.Models.Options
             return _logWriter;
         }
 
-        public ILogWriterOptions WithLogFileName(string fileName)
-        {
-            _logWriter.SetFileName(fileName);
-
-            return this;
-        }
-
-        public ILogWriterOptions WithLogFilePath(string path)
-        {
-            _logWriter.SetFilePath(path);
-
-            return this;
-        }
-
         public ILogWriterOptions WithLoggedClassFilter(string filter)
         {
             _logWriter.SetFilter(filter);
@@ -47,13 +34,6 @@ namespace Sentinel.Models.Options
         public ILogWriterOptions WithMinimumLogLevel(LogLevel logLevel)
         {
             _logWriter.SetMinimiumLogLevel(logLevel);
-
-            return this;
-        }
-
-        public ILogWriterOptions WithSinkRollTiming(SinkRoll sinkRoll)
-        {
-            _logWriter.SetSinkTiming(sinkRoll);
 
             return this;
         }

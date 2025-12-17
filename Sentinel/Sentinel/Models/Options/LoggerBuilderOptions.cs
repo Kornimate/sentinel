@@ -13,61 +13,78 @@ namespace Sentinel.Models.Options
     public sealed class LoggerBuilderOptions : ILoggerBuilderOptions
     {
         private readonly IList<ILogWriter> _logWriters;
-        private ILogWriterOptions? _logWriterOptions;
-
         public LoggerBuilderOptions()
         {
             _logWriters = [];
-            _logWriterOptions = null;
         }
 
+        public ILoggerBuilderOptions AddJsonLogger(Action<IFileLogWriterOptions> writerOptions)
+        {
+            IFileLogWriterOptions logWriterOptions = new FileLogWriterOptions(new JsonLogWriter());
+
+            writerOptions(logWriterOptions);
+
+            _logWriters.Add(logWriterOptions.GetWriterInstance().Build());
+
+            return this;
+        }
+
+        public ILoggerBuilderOptions AddXmlLogger(Action<IFileLogWriterOptions> writerOptions)
+        {
+            IFileLogWriterOptions logWriterOptions = new FileLogWriterOptions(new XmlLogWriter());
+
+            writerOptions(logWriterOptions);
+
+            _logWriters.Add(logWriterOptions.GetWriterInstance().Build());
+
+            return this;
+        }
         public ILoggerBuilderOptions AddConsoleLogger(Action<ILogWriterOptions> writerOptions)
         {
-            _logWriterOptions = new LogWriterOptions(new ConsoleLogWriter());
+            ILogWriterOptions logWriterOptions = new LogWriterOptions(new ConsoleLogWriter());
 
-            writerOptions(_logWriterOptions);
+            writerOptions(logWriterOptions);
 
-            _logWriters.Add(_logWriterOptions.GetWriterInstance().Build());
-
-            return this;
-        }
-
-
-        public ILoggerBuilderOptions AddJsonLogger(Action<ILogWriterOptions> writerOptions)
-        {
-            _logWriterOptions = new LogWriterOptions(new JsonLogWriter());
-
-            writerOptions(_logWriterOptions);
-
-            _logWriters.Add(_logWriterOptions.GetWriterInstance().Build());
+            _logWriters.Add(logWriterOptions.GetWriterInstance().Build());
 
             return this;
         }
-
-        public ILoggerBuilderOptions AddXmlLogger(Action<ILogWriterOptions> writerOptions)
+        public ILoggerBuilderOptions AddCustomFileLogger<T>(Action<IFileLogWriterOptions> writerOptions) where T : FileLogWriterBase
         {
-            _logWriterOptions = new LogWriterOptions(new XmlLogWriter());
+            IFileLogWriterOptions? logWriterOptions = null;
 
-            writerOptions(_logWriterOptions);
-
-            _logWriters.Add(_logWriterOptions.GetWriterInstance().Build());
-
-            return this;
-        }
-        public ILoggerBuilderOptions AddCustomLogger<T>(Action<ILogWriterOptions> writerOptions) where T : ILogWriter
-        {
             try
             {
-                _logWriterOptions = new LogWriterOptions(Activator.CreateInstance<T>());
+                logWriterOptions = new FileLogWriterOptions(Activator.CreateInstance<T>());
             }
             catch (Exception)
             {
                 throw new ArgumentException("ILogWriter derived class's contructor must be parameterless");
             }
 
-            writerOptions(_logWriterOptions);
+            writerOptions(logWriterOptions);
 
-            _logWriters.Add(_logWriterOptions.GetWriterInstance().Build());
+            _logWriters.Add(logWriterOptions.GetWriterInstance().Build());
+
+            return this;
+        }
+        
+        public ILoggerBuilderOptions AddCustomLogger<T>(Action<ILogWriterOptions> writerOptions) where T : ILogWriter
+        {
+            ILogWriterOptions? logWriterOptions = null;
+
+            try
+            {
+                logWriterOptions = new LogWriterOptions(Activator.CreateInstance<T>());
+            }
+            catch (Exception)
+            {
+                throw new ArgumentException("ILogWriter derived class's contructor must be parameterless");
+            }
+
+            writerOptions(logWriterOptions);
+
+            _logWriters.Add(logWriterOptions.GetWriterInstance().Build());
 
             return this;
         }
@@ -99,6 +116,20 @@ namespace Sentinel.Models.Options
         }
 
         public ILoggerBuilderOptions AddCustomLogger<T>() where T : ILogWriter
+        {
+            try
+            {
+                _logWriters.Add(Activator.CreateInstance<T>().Build());
+            }
+            catch (Exception)
+            {
+                throw new ArgumentException("ILogWriter derived class's contructor must be parameterless");
+            }
+
+            return this;
+        }
+
+        public ILoggerBuilderOptions AddCustomFileLogger<T>() where T : FileLogWriterBase
         {
             try
             {

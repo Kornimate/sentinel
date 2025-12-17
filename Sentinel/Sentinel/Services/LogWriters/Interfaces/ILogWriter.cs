@@ -13,16 +13,9 @@ namespace Sentinel.Services.LogWriters.Interfaces
         ILogWriter Build();
         void ShutDown();
         void AddLogMessage(object? sender, ILogEntry log);
-        void SetFilePath(string filePath);
-        void SetFileName(string fileName);
-        void SetSubDirectory(string dirName);
         void SetFilter(string filter);
         void SetMinimiumLogLevel(LogLevel logLevel);
-        void SetSinkTiming(SinkRoll sinkRoll);
         void SetLogContainerSize(int size);
-        string? GetFilePath();
-        string? GetFileName();
-        string? GetSubDirectory();
         bool WriteToConsole();
         Task StartNewBackgroundTask();
         Task? GetBackgroundConsumerTask();

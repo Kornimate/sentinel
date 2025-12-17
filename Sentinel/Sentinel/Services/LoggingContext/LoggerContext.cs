@@ -34,8 +34,6 @@ namespace Sentinel.Services.LoggingContext
         {
             LogCreatedEvent += logWriter.AddLogMessage;
 
-            CheckIfLogWriterConfiguredCorrectly(logWriter);
-
             _logWriters.Add(logWriter);
 
             var loggerTask = logWriter.GetBackgroundConsumerTask();
@@ -46,22 +44,6 @@ namespace Sentinel.Services.LoggingContext
         public void RaiseNewLogEntryEvent(ILogEntry logEntry)
         {
             LogCreatedEvent?.Invoke(this, logEntry);
-        }
-
-        private void CheckIfLogWriterConfiguredCorrectly(ILogWriter newLogWriter)
-        {
-            foreach (ILogWriter existingLogWriter in _logWriters)
-            {
-                if (!newLogWriter.WriteToConsole()
-                    && !existingLogWriter.WriteToConsole()
-                    && newLogWriter.GetFileName() != null
-                    && newLogWriter.GetFileName() == existingLogWriter.GetFileName()
-                    && newLogWriter.GetSubDirectory() == existingLogWriter.GetSubDirectory()
-                    && newLogWriter.GetFilePath() == existingLogWriter.GetFilePath())
-                {
-                    throw new ArgumentException("Loggers can not write the same file (same path, subdirectory and filename)");
-                }
-            }
         }
 
         public void ShutDown()

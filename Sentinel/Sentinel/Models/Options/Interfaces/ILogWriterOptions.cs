@@ -1,5 +1,4 @@
-﻿using Sentinel.Services.LogWriters.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,14 +6,10 @@ using System.Threading.Tasks;
 
 namespace Sentinel.Models.Options.Interfaces
 {
-    public interface ILogWriterOptions
+    public interface ILogWriterOptions : ILogWriterOptionsBase
     {
-        ILogWriterOptions WithLogFilePath(string path);
-        ILogWriterOptions WithLogFileName(string fileName);
+        ILogWriterOptions WithLogContainerSize(int size);
         ILogWriterOptions WithLoggedClassFilter(string filter);
         ILogWriterOptions WithMinimumLogLevel(LogLevel logLevel);
-        ILogWriterOptions WithSinkRollTiming(SinkRoll sinkRoll);
-        ILogWriterOptions WithLogContainerSize(int size);
-        ILogWriter GetWriterInstance();
     }
 }

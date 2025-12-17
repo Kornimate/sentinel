@@ -10,15 +10,18 @@ namespace Sentinel
             var builder = LoggerBuilder.CreateLogger(options =>
             {
                 options
-                    .AddConsoleLogger()
+                    .AddConsoleLogger(options =>
+                    {
+                        options.WithLogContainerSize(5000);
+                    })
                     .AddJsonLogger(options =>
                     {
                         options
-                        .WithLogFilePath("D:\\Logs")
-                        .WithLoggedClassFilter("Program")
                         .WithLogFileName("Test")
+                        .WithLogFilePath("D:\\Logs")
+                        .WithSinkRollTiming(SinkRoll.DAILY)
                         .WithMinimumLogLevel(LogLevel.WARNG)
-                        .WithSinkRollTiming(SinkRoll.DAILY);
+                        .WithLoggedClassFilter("Program");
                     })
                     .AddXmlLogger();
             });

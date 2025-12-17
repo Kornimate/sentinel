@@ -27,8 +27,6 @@ namespace Sentinel.Services.LogWriters
         protected TimeSpan _rotationInterval;
         protected DateTime _nextRotationTime;
 
-        protected readonly IList<ILogEntry> _batch = [];
-
         protected string SubDirectory { get; set; } = "Default";
         public string FileExtension { get; set; } = ".log";
 
