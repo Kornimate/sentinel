@@ -10,5 +10,6 @@ namespace Sentinel.Services.LoggerBuilders.Interfaces
     public interface ILoggerBuilder
     {
         ISentinelLogger<T> GetLogger<T>() where T : class;
+        ISentinelLogger GetLogger();
     }
 }

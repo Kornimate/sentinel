@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Sentinel.Models;
+using Sentinel.Models.LoggerGeneric;
 using Sentinel.Models.Options;
 using Sentinel.Models.Options.Interfaces;
 using Sentinel.Services.Logger;
@@ -44,6 +45,10 @@ namespace Sentinel.Services.LoggerBuilders
         public ISentinelLogger<T> GetLogger<T>() where T : class
         {
             return new SentinelLogger<T>();
+        }
+        public ISentinelLogger GetLogger()
+        {
+            return new SentinelLogger<LoggerGenericBase>();
         }
 
     }

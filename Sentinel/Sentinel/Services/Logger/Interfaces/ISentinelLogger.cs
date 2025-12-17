@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Sentinel.Services.Logger.Interfaces
 {
-    public interface ISentinelLogger<T> where T : class
+    public interface ISentinelLogger
     {
         void LogVerbose(string message, Exception? exception = null);
         void LogDebug(string message, Exception? exception = null);
@@ -19,4 +19,6 @@ namespace Sentinel.Services.Logger.Interfaces
 
         void ShutDown();
     }
+
+    public interface ISentinelLogger<T> : ISentinelLogger where T : class;
 }

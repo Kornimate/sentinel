@@ -1,4 +1,5 @@
 ﻿using Sentinel.Models;
+using Sentinel.Models.LoggerGeneric;
 using Sentinel.Models.LogTypes.Interfaces;
 using Sentinel.Services.LogWriters.Interfaces;
 using System;
@@ -81,7 +82,7 @@ namespace Sentinel.Services.LogWriters
             if (log.Level < _minimumLevel) // filter logs with LogLevel smaller than specified
                 return;
 
-            if (EntryPassesFilter(log)) // if filter is set filter for class names (full name with namespace)
+            if (!EntryPassesFilter(log)) // if filter is set filter for class names (full name with namespace)
                 return;
 
             bool validChannel = _channel is not null;
@@ -133,7 +134,13 @@ namespace Sentinel.Services.LogWriters
 
         protected virtual bool EntryPassesFilter(ILogEntry log)
         {
-            return _filter != null && log.FilterData.IndexOf(_filter) == -1; // fast check
+            if (_filter is null) // no filter means everything passes
+                return true;
+
+            if (log.FilterData == typeof(LoggerGenericBase)!.FullName) // logger is used without generic (a base genric class is inserted anyway)
+                return true;
+
+            return log.FilterData.IndexOf(_filter) == -1; // fast check
         }
 
         public void SetFilter(string filter)

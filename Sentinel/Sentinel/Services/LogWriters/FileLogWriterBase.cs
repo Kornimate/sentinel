@@ -79,7 +79,7 @@ namespace Sentinel.Services.LogWriters
             var path = Path.Combine(
                 _filePath!,
                 $"{timestamp}{(_fileName is not null ? "_id_" + _fileName : "")}" +
-                $"{(FileExtension.IndexOf('.') == -1 ? "." + FileExtension : FileExtension)}");
+                $"{(FileExtension.StartsWith('.')  ? FileExtension : "." + FileExtension)}");
 
             var dir = Path.GetDirectoryName(path)!;
             if (!Directory.Exists(dir))
