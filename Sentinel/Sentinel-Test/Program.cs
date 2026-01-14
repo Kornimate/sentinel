@@ -17,7 +17,7 @@ namespace Sentinel
 
             var logger = builder.GetLogger<Program>();
 
-            for(int i=0; i< 1_000; i++)
+            for(int i=0; i< 1_000_000; i++)
             {
                 logger.LogInformation("Info");
             }
